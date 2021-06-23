@@ -1,0 +1,1957 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.5//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_5.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int AgentNum = 6;
+typedef int[0,AgentNum-1] AgentScale;
+const int TaskNum = 4;
+const int EventNum = 0;
+const int MilestoneNum = 4;
+const int MaxIteration = 2;
+const int RegularTaskNum[AgentNum] = {3,3,3,3,3,3};
+const int MAXTIME = 3000;
+//const int REWARDRATE = 2000;
+
+int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0,0,0};
+bool tf[AgentNum][TaskNum]={{true,false,false,false},{true,false,false,false},{true,false,false,false},
+{true,false,false,false},{true,false,false,false},{true,false,false,false}};
+bool ts[AgentNum][TaskNum]={{true,false,false,false},{true,false,false,false},{true,false,false,false},
+{true,false,false,false},{true,false,false,false},{true,false,false,false}};
+const int[0,TaskNum] rules[MilestoneNum] = {0,1,2,3};
+
+int iteration[AgentNum] = {0,0,0,0,0,0};
+
+clock globalTime;
+bool idle[AgentNum] = {true,true,true,true,true,true};
+
+broadcast chan someoneDone[MilestoneNum];
+
+int tasks_finished() 
+{
+    int a;
+    int t;
+    int finished = 0;
+    for(a : AgentScale) 
+    {
+        for(t = 0; t &lt; TaskNum; ++t)
+        {
+            if(tf[a][t]) ++finished;
+        }
+        finished += iteration[a]*TaskNum;
+    }
+    return finished;
+}
+
+//int penalty = 0; 
+//int[0,5] mistakes[AgentNum];
+void punish(int agentID, int currentPosition, int targetPosition)
+{
+    /*int currentTask = rules[currentPosition];
+    int targetTask = rules[targetPosition];
+    bool ready = idle[agentID]&amp;&amp;iteration[agentID]&lt;MaxIteration;
+    bool currentFinished = tf[agentID][currentTask];
+    bool targetFinished = tf[agentID][targetTask];
+    bool rightChoice = currentFinished&amp;!targetFinished;
+
+    if(!rightChoice)
+    {
+        if(mistakes[agentID] &lt; 5)
+        {
+            mistakes[agentID]++;
+        }
+        if(penalty &lt;= MAXTIME)
+        {
+            penalty = penalty + 10;
+        }
+    }*/
+
+    idle[agentID] = false;
+}
+
+void reward(int agentID)
+{
+    /*if(mistakes[agentID] &gt; 0)
+    {
+        mistakes[agentID]--;
+    }*/
+}
+
+bool isNecessary(int agentID, int taskID)
+{
+    return !tf[agentID][taskID]&amp;&amp;iteration[agentID]&lt;MaxIteration;
+}
+
+bool isBusy(int taskID)
+{
+    int id = 0;
+    bool busy = false;
+
+
+    for(id = 0; id &lt; AgentNum; id++)
+    {
+        if(ts[id][taskID])
+        {
+            busy = true;
+            return busy;
+        }
+    }
+
+    return busy;
+}
+
+bool isReady(int agentID, int currentPosition, int targetPosition)
+{
+    /*int currentTask = rules[currentPosition];
+    int targetTask = rules[targetPosition];
+    bool currentFinished = tf[agentID][currentTask];
+    bool targetFinished = tf[agentID][targetTask];
+    bool rightChoice = currentFinished&amp;!targetFinished;*/
+    bool ready = idle[agentID]&amp;&amp;iteration[agentID]&lt;MaxIteration;
+
+    //return ready&amp;&amp;(rightChoice||mistakes[agentID]&lt;4);
+    return ready;
+}
+
+bool shouldWait(int agentID)
+{
+    int currentPosition, currentTask;
+    bool currentFinished, ready, wait, busy;
+
+    currentPosition = position[agentID];
+    if(currentPosition != -1)
+    {
+        currentTask = rules[currentPosition];
+        currentFinished = tf[agentID][currentTask];
+        ready = idle[agentID]&amp;&amp;iteration[agentID]&lt;MaxIteration;
+        busy = isBusy(currentTask);
+        wait = !currentFinished &amp;&amp; ready &amp;&amp; busy;
+    }
+    else
+    {
+        wait = false;
+    }
+
+    return wait;   
+}
+
+
+</declaration>
+	<template>
+		<name>Movement0</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;
+</declaration>
+		<location id="id0" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id1" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=25</label>
+		</location>
+		<location id="id2" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=26</label>
+		</location>
+		<location id="id3" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=30</label>
+		</location>
+		<location id="id4" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id5" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=15</label>
+		</location>
+		<location id="id6" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=18</label>
+		</location>
+		<location id="id7" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id8" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=15</label>
+		</location>
+		<location id="id9" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=12</label>
+		</location>
+		<location id="id10" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id11" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=18</label>
+		</location>
+		<location id="id12" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=12</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=25</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id2"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-110" y="-30">t&gt;=26</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id10"/>
+			<label kind="guard" x="399" y="-51">t&gt;=30</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-93" y="34">t&gt;=15</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id10"/>
+			<label kind="guard" x="136" y="102">t&gt;=18</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id8"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-340" y="0">t&gt;=15</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="314" y="-25">t&gt;=12</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-255" y="178">t&gt;=18</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id7"/>
+			<label kind="guard" x="76" y="42">t&gt;=12</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>Movement1</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id13" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id14" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=30</label>
+		</location>
+		<location id="id15" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=30</label>
+		</location>
+		<location id="id16" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=40</label>
+		</location>
+		<location id="id17" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id18" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=15</label>
+		</location>
+		<location id="id19" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=18</label>
+		</location>
+		<location id="id20" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id21" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=15</label>
+		</location>
+		<location id="id22" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=12</label>
+		</location>
+		<location id="id23" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id24" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=18</label>
+		</location>
+		<location id="id25" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=12</label>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id14"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=30</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id15"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-110" y="-30">t&gt;=30</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id16"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id16"/>
+			<target ref="id23"/>
+			<label kind="guard" x="399" y="-51">t&gt;=40</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id18"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-93" y="34">t&gt;=15</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id19"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id19"/>
+			<target ref="id23"/>
+			<label kind="guard" x="136" y="102">t&gt;=18</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id21"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id21"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-340" y="0">t&gt;=15</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id22"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="guard" x="314" y="-25">t&gt;=12</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id24"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-255" y="178">t&gt;=18</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id25"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id25"/>
+			<target ref="id20"/>
+			<label kind="guard" x="76" y="42">t&gt;=12</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>Movement2</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id26" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id27" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=28</label>
+		</location>
+		<location id="id28" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=21</label>
+		</location>
+		<location id="id29" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=27</label>
+		</location>
+		<location id="id30" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id31" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=25</label>
+		</location>
+		<location id="id32" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=28</label>
+		</location>
+		<location id="id33" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id34" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=25</label>
+		</location>
+		<location id="id35" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=22</label>
+		</location>
+		<location id="id36" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id37" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=28</label>
+		</location>
+		<location id="id38" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=22</label>
+		</location>
+		<init ref="id26"/>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id27"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id27"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=28</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id28"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-42" y="-42">t&gt;=21</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id29"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id29"/>
+			<target ref="id36"/>
+			<label kind="guard" x="399" y="-51">t&gt;=27</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id31"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id31"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-93" y="34">t&gt;=25</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id32"/>
+			<target ref="id36"/>
+			<label kind="guard" x="136" y="102">t&gt;=28</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id34"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id34"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-272" y="-85">t&gt;=25</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id35"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id35"/>
+			<target ref="id36"/>
+			<label kind="guard" x="314" y="-25">t&gt;=22</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id37"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id37"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-255" y="178">t&gt;=28</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id38"/>
+			<target ref="id33"/>
+			<label kind="guard" x="76" y="42">t&gt;=22</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>Movement3</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id39" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id40" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=28</label>
+		</location>
+		<location id="id41" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=21</label>
+		</location>
+		<location id="id42" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=27</label>
+		</location>
+		<location id="id43" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id44" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=25</label>
+		</location>
+		<location id="id45" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=28</label>
+		</location>
+		<location id="id46" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id47" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=25</label>
+		</location>
+		<location id="id48" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=22</label>
+		</location>
+		<location id="id49" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id50" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=28</label>
+		</location>
+		<location id="id51" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=22</label>
+		</location>
+		<init ref="id39"/>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id40"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id40"/>
+			<target ref="id43"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=28</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id41"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id41"/>
+			<target ref="id46"/>
+			<label kind="guard" x="-42" y="-42">t&gt;=21</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id42"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id42"/>
+			<target ref="id49"/>
+			<label kind="guard" x="399" y="-51">t&gt;=27</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id44"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id44"/>
+			<target ref="id46"/>
+			<label kind="guard" x="-93" y="34">t&gt;=25</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id45"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id45"/>
+			<target ref="id49"/>
+			<label kind="guard" x="136" y="102">t&gt;=28</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id47"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id47"/>
+			<target ref="id43"/>
+			<label kind="guard" x="-272" y="-85">t&gt;=25</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id48"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id48"/>
+			<target ref="id49"/>
+			<label kind="guard" x="314" y="-25">t&gt;=22</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id50"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id50"/>
+			<target ref="id43"/>
+			<label kind="guard" x="-255" y="178">t&gt;=28</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id51"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id51"/>
+			<target ref="id46"/>
+			<label kind="guard" x="76" y="42">t&gt;=22</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>Movement4</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id52" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id53" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=28</label>
+		</location>
+		<location id="id54" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=26</label>
+		</location>
+		<location id="id55" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=30</label>
+		</location>
+		<location id="id56" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id57" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=15</label>
+		</location>
+		<location id="id58" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=18</label>
+		</location>
+		<location id="id59" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id60" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=15</label>
+		</location>
+		<location id="id61" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=12</label>
+		</location>
+		<location id="id62" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id63" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=18</label>
+		</location>
+		<location id="id64" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=12</label>
+		</location>
+		<init ref="id52"/>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id53"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id53"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=28</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id54"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id54"/>
+			<target ref="id59"/>
+			<label kind="guard" x="-110" y="-30">t&gt;=26</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id55"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id55"/>
+			<target ref="id62"/>
+			<label kind="guard" x="399" y="-51">t&gt;=30</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id57"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id57"/>
+			<target ref="id59"/>
+			<label kind="guard" x="-93" y="34">t&gt;=15</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id58"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id58"/>
+			<target ref="id62"/>
+			<label kind="guard" x="136" y="102">t&gt;=18</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id60"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id60"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-340" y="0">t&gt;=15</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id61"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id61"/>
+			<target ref="id62"/>
+			<label kind="guard" x="314" y="-25">t&gt;=12</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id62"/>
+			<target ref="id63"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id63"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-255" y="178">t&gt;=18</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id62"/>
+			<target ref="id64"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id64"/>
+			<target ref="id59"/>
+			<label kind="guard" x="76" y="42">t&gt;=12</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>Movement5</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id65" x="0" y="-238">
+			<name x="-10" y="-268">P0</name>
+			<committed/>
+		</location>
+		<location id="id66" x="-416" y="-102">
+			<name x="-426" y="-132">F0T1</name>
+			<label kind="invariant" x="-399" y="-85">t&lt;=31</label>
+		</location>
+		<location id="id67" x="0" y="-127">
+			<name x="-10" y="-157">F0T2</name>
+			<label kind="invariant" x="-10" y="-112">t&lt;=29</label>
+		</location>
+		<location id="id68" x="408" y="-102">
+			<name x="398" y="-132">F0T3</name>
+			<label kind="invariant" x="398" y="-87">t&lt;=30</label>
+		</location>
+		<location id="id69" x="-416" y="34">
+			<name x="-446" y="42">P1</name>
+			<label kind="exponentialrate" x="-426" y="68">1</label>
+		</location>
+		<location id="id70" x="-204" y="34">
+			<name x="-214" y="4">F1T2</name>
+			<label kind="invariant" x="-170" y="8">t&lt;=15</label>
+		</location>
+		<location id="id71" x="0" y="178">
+			<name x="-10" y="148">F1T3</name>
+			<label kind="invariant" x="-8" y="187">t&lt;=18</label>
+		</location>
+		<location id="id72" x="0" y="34">
+			<name x="-10" y="4">P2</name>
+			<label kind="exponentialrate" x="-10" y="68">1</label>
+		</location>
+		<location id="id73" x="-204" y="-102">
+			<name x="-214" y="-132">F2T1</name>
+			<label kind="invariant" x="-214" y="-87">t&lt;=15</label>
+		</location>
+		<location id="id74" x="204" y="-102">
+			<name x="194" y="-132">F2T3</name>
+			<label kind="invariant" x="194" y="-87">t&lt;=12</label>
+		</location>
+		<location id="id75" x="408" y="34">
+			<name x="398" y="4">P3</name>
+			<label kind="exponentialrate" x="398" y="68">1</label>
+		</location>
+		<location id="id76" x="0" y="272">
+			<name x="-10" y="242">F3T1</name>
+			<label kind="invariant" x="-10" y="287">t&lt;=18</label>
+		</location>
+		<location id="id77" x="204" y="34">
+			<name x="161" y="42">F3T2</name>
+			<label kind="invariant" x="194" y="49">t&lt;=12</label>
+		</location>
+		<init ref="id65"/>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id66"/>
+			<label kind="guard" x="-475" y="-195">isReady(id,0,1)</label>
+			<label kind="assignment" x="-603" y="-178">t=0,position[id]=-1,punish(id,0,1)</label>
+			<nail x="-416" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id66"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-501" y="-76">t&gt;=31</label>
+			<label kind="assignment" x="-501" y="-59">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id67"/>
+			<label kind="guard" x="-51" y="-195">isReady(id,0,2)</label>
+			<label kind="assignment" x="-110" y="-178">t=0,position[id]=-1,punish(id,0,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id67"/>
+			<target ref="id72"/>
+			<label kind="guard" x="-110" y="-30">t&gt;=29</label>
+			<label kind="assignment" x="-102" y="-93">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id68"/>
+			<label kind="guard" x="374" y="-204">isReady(id,0,3)</label>
+			<label kind="assignment" x="247" y="-187">t=0,position[id]=-1,punish(id,0,3)</label>
+			<nail x="408" y="-238"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id68"/>
+			<target ref="id75"/>
+			<label kind="guard" x="399" y="-51">t&gt;=30</label>
+			<label kind="assignment" x="391" y="-68">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-340" y="17">isReady(id,1,2)</label>
+			<label kind="assignment" x="-374" y="42">t=0,position[id]=-1,punish(id,1,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id70"/>
+			<target ref="id72"/>
+			<label kind="guard" x="-93" y="34">t&gt;=15</label>
+			<label kind="assignment" x="-178" y="59">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id71"/>
+			<label kind="guard" x="-221" y="110">isReady(id,1,3)</label>
+			<label kind="assignment" x="-280" y="127">t=0,position[id]=-1,punish(id,1,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id71"/>
+			<target ref="id75"/>
+			<label kind="guard" x="136" y="102">t&gt;=18</label>
+			<label kind="assignment" x="136" y="85">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id73"/>
+			<label kind="guard" x="-127" y="-17">isReady(id,2,1)</label>
+			<label kind="assignment" x="-263" y="-59">t=0,position[id]=-1,punish(id,2,1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id73"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-340" y="0">t&gt;=15</label>
+			<label kind="assignment" x="-450" y="-25">t=0,position[id]=1,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id74"/>
+			<label kind="guard" x="85" y="-76">isReady(id,2,3)</label>
+			<label kind="assignment" x="17" y="-34">t=0,position[id]=-1,punish(id,2,3)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id74"/>
+			<target ref="id75"/>
+			<label kind="guard" x="314" y="-25">t&gt;=12</label>
+			<label kind="assignment" x="127" y="-51">t=0,position[id]=3,idle[id]=true</label>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id76"/>
+			<label kind="guard" x="212" y="178">isReady(id,3,1)</label>
+			<label kind="assignment" x="119" y="204">t=0,position[id]=-1,punish(id,3,1)</label>
+			<nail x="408" y="119"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id76"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-255" y="178">t&gt;=18</label>
+			<label kind="assignment" x="-331" y="204">t=0,position[id]=1,idle[id]=true</label>
+			<nail x="-416" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id77"/>
+			<label kind="guard" x="-51" y="228">isReady(id,3,2)</label>
+			<label kind="assignment" x="255" y="51">t=0,position[id]=-1,punish(id,3,2)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id77"/>
+			<target ref="id72"/>
+			<label kind="guard" x="76" y="42">t&gt;=12</label>
+			<label kind="assignment" x="42" y="8">t=0,position[id]=2,idle[id]=true</label>
+		</transition>
+	</template>
+	<template>
+		<name>TaskExecution0</name>
+		<parameter>const AgentScale id</parameter>
+		<declaration>clock t;
+
+void updateIteration()
+{
+	int i=0;
+	bool finish = true;
+	for(i=1;i&lt;=RegularTaskNum[id];i++)
+	{
+		finish &amp;= tf[id][i];
+	}
+	if(finish)
+	{
+		for(i=1;i&lt;=RegularTaskNum[id];i++)
+		{
+			tf[id][i]=false;
+		}
+		
+		iteration[id]+=1;
+		if(iteration[id]&gt;=MaxIteration)
+		{
+			iteration[id]=MaxIteration;
+		}
+	}
+	else
+	{
+    	finish = true;
+	}
+}
+
+</declaration>
+		<location id="id78" x="-578" y="-102">
+			<name x="-646" y="-136">Waiting</name>
+		</location>
+		<location id="id79" x="-408" y="-204">
+			<name x="-418" y="-234">T0</name>
+			<label kind="exponentialrate" x="-418" y="-170">1</label>
+		</location>
+		<location id="id80" x="-408" y="-501">
+			<name x="-418" y="-531">T1</name>
+			<label kind="invariant" x="-418" y="-486">t&lt;=10</label>
+		</location>
+		<location id="id81" x="-102" y="-204">
+			<name x="-112" y="-234">T2</name>
+			<label kind="invariant" x="-85" y="-221">t&lt;=8</label>
+		</location>
+		<location id="id82" x="-408" y="102">
+			<name x="-418" y="72">T3</name>
+			<label kind="invariant" x="-418" y="117">t&lt;=15</label>
+		</location>
+		<init ref="id79"/>
+		<transition controllable="false">
+			<source ref="id78"/>
+			<target ref="id79"/>
+			<label kind="synchronisation" x="-560" y="-119">someoneDone[position[id]]?</label>
+			<label kind="assignment" x="-560" y="-102">t=0,idle[id]=true</label>
+			<nail x="-442" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id78"/>
+			<label kind="guard" x="-560" y="-238">shouldWait(id)</label>
+			<label kind="assignment" x="-560" y="-204">t=0,idle[id]=false</label>
+			<nail x="-578" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id80"/>
+			<label kind="guard" x="-450" y="-416">((!isBusy(1))&amp;&amp;(position[id]==1))&amp;&amp;isNecessary(id,1)</label>
+			<label kind="assignment" x="-442" y="-391">t=0,ts[id][1]=true,tf[id][1]=false,idle[id]=false,reward(id)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id80"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-569" y="-357">t&gt;=10</label>
+			<label kind="synchronisation" x="-663" y="-340">someoneDone[position[id]]!</label>
+			<label kind="assignment" x="-705" y="-323">t=0,ts[id][1]=false,tf[id][1]=true,
+updateIteration(),idle[id]=true</label>
+			<nail x="-527" y="-365"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id81"/>
+			<label kind="guard" x="-331" y="-187">((tf[id][1]&amp;&amp;!isBusy(2))&amp;&amp;(position[id]==2))&amp;&amp;isNecessary(id,2)</label>
+			<label kind="assignment" x="-331" y="-170">t=0,ts[id][2]=true,tf[id][2]=false,idle[id]=false,reward(id)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id81"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-340" y="-331">t&gt;=8</label>
+			<label kind="synchronisation" x="-340" y="-272">someoneDone[position[id]]!</label>
+			<label kind="assignment" x="-340" y="-306">t=0,ts[id][2]=false,tf[id][2]=true,
+updateIteration(),idle[id]=true</label>
+			<nail x="-246" y="-306"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id82"/>
+			<label kind="guard" x="-824" y="-76">((tf[id][2]&amp;&amp;!isBusy(3))&amp;&amp;(position[id]==3))&amp;&amp;isNecessary(id,3)</label>
+			<label kind="assignment" x="-824" y="-51">t=0,ts[id][3]=true,tf[id][3]=false,idle[id]=false,reward(id)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id82"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-272" y="-85">t&gt;=15</label>
+			<label kind="synchronisation" x="-272" y="-68">someoneDone[position[id]]!</label>
+			<label kind="assignment" x="-272" y="-51">t=0,ts[id][3]=false,tf[id][3]=true,
+updateIteration(),idle[id]=true</label>
+			<nail x="-250" y="-50"/>
+		</transition>
+	</template>
+	<system>movement0 = Movement0(0);
+taskExe0 = TaskExecution0(0);
+movement1 = Movement1(1);
+taskExe1 = TaskExecution0(1);
+movement2 = Movement2(2);
+taskExe2 = TaskExecution0(2);
+movement3 = Movement3(3);
+taskExe3 = TaskExecution0(3);
+movement4 = Movement4(4);
+taskExe4 = TaskExecution0(4);
+movement5 = Movement5(5);
+taskExe5 = TaskExecution0(5);
+
+system movement0, taskExe0, movement1, taskExe1, movement2, taskExe2, 
+movement3, taskExe3, movement4, taskExe4, movement5, taskExe5;</system>
+	<queries>
+		<option key="--diagnostic" value="2"/>
+		<option key="--learning-method" value="-1"/>
+		<option key="--good-runs" value="5000"/>
+		<option key="--total-runs" value="5000"/>
+		<option key="--runs-pr-state" value="5000"/>
+		<query>
+			<formula>strategy opt = maxE(tasks_finished() - globalTime)[&lt;=MAXTIME]{
+movement0.location, taskExe0.location, movement1.location, taskExe1.location,
+movement2.location, taskExe2.location, movement3.location, taskExe3.location,
+movement4.location, taskExe4.location, movement5.location, taskExe5.location,
+iteration[0], iteration[1], iteration[2], iteration[3], iteration[4], iteration[5],
+tf[0][0], tf[0][1], tf[0][2], tf[0][3], tf[1][0], tf[1][1], tf[1][2], tf[1][3],
+tf[2][0], tf[2][1], tf[2][2], tf[2][3], tf[3][0], tf[3][1], tf[3][2], tf[3][3],
+tf[4][0], tf[4][1], tf[4][2], tf[4][3], tf[5][0], tf[5][1], tf[5][2], tf[5][3]}-&gt;{}:&lt;&gt; (((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) || globalTime &gt;= MAXTIME)</formula>
+			<comment>minE(globalTime-(tasks_finished()*REWARDRATE))
+minE(globalTime-tasks_finished())
+maxE(tasks_finished() - globalTime)</comment>
+			<option key="--learning-method" value="-1"/>
+			<option key="--good-runs" value="1000"/>
+			<option key="--total-runs" value="1000"/>
+			<option key="--runs-pr-state" value="1000"/>
+			<result outcome="success" type="quality" timestamp="2021-06-23 04:29:23 +0200">
+				<option key="--search-order" value="0"/>
+				<option key="--statespace-consumption" value="1"/>
+				<option key="--diagnostic" value="2"/>
+				<option key="--backwards-order" value="1"/>
+				<option key="--priority-order" value="0"/>
+				<option key="--generate-strategy" value="2"/>
+				<option key="--extrapolation" value="0"/>
+				<option key="--hashtable-size" value="27"/>
+				<option key="--filter" value="0"/>
+				<option key="--learning-method" value="-1"/>
+				<option key="--good-runs" value="5000"/>
+				<option key="--total-runs" value="5000"/>
+				<option key="--runs-pr-state" value="5000"/>
+				<option key="--eval-runs" value="100"/>
+				<option key="--max-iterations" value="30"/>
+				<option key="--max-imitation" value="5"/>
+				<option key="--reset-no-better" value="10"/>
+				<option key="--max-reset-learning" value="3"/>
+				<option key="--qlearning-alpha" value="2"/>
+				<option key="--split-upper-t" value="1.75"/>
+				<option key="--split-lower-t" value="0.15"/>
+				<option key="--split-ks" value="0.25"/>
+				<option key="--split-filter-rate" value="0.02"/>
+				<option key="--split-filter-val" value="0.99"/>
+				<option key="--discount" value="0.99"/>
+				<option key="--random-search-limit" value="0.5"/>
+				<option key="--deterministic-search-limit" value="0.5"/>
+				<option key="--indifference-scale" value="0.005"/>
+				<option key="--indifference-smoothing" value="10"/>
+				<option key="--lower-delta" value="0.01"/>
+				<option key="--upper-delta" value="0.01"/>
+				<option key="--alpha" value="0.05"/>
+				<option key="--beta" value="0.05"/>
+				<option key="--epsilon" value="0.05"/>
+				<option key="--u0" value="0.9"/>
+				<option key="--u1" value="1.1"/>
+				<option key="--histogram-bar-width" value="0.0"/>
+				<option key="--histogram-bar-count" value="0"/>
+				<option key="--resolution" value="4000"/>
+				<option key="--discretization" value="0.01"/>
+				<option key="--truncation-error" value="0.01"/>
+				<option key="--truncation-time-error" value="0.01"/>
+				
+			</result>
+		</query>
+		<query>
+			<formula>E[&lt;=MAXTIME;1000] (max: globalTime*((exists(i:int[0,AgentNum-1]) iteration[i] &lt; MaxIteration))) under opt</formula>
+			<comment>A[] ((taskExe0.T1 imply movement0.P1) and (taskExe1.T1 imply movement1.P1) and (taskExe2.T1 imply movement2.P1) and 
+(taskExe0.T2 imply movement0.P2) and (taskExe1.T2 imply movement1.P2) and (taskExe2.T2 imply movement2.P2) and 
+(taskExe0.T3 imply movement0.P3) and (taskExe1.T3 imply movement1.P3) and (taskExe2.T3 imply movement2.P3)) opt
+
+E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt
+
+saveStrategy("/home/ron/uppaal/projects/q_learning/output/complete_path.out", opt)</comment>
+			<result outcome="success" type="quantity" value="661.194 ± 9.82219 (95% CI)" timestamp="2021-06-23 04:30:23 +0200">
+				<option key="--search-order" value="0"/>
+				<option key="--statespace-consumption" value="1"/>
+				<option key="--diagnostic" value="2"/>
+				<option key="--backwards-order" value="1"/>
+				<option key="--priority-order" value="0"/>
+				<option key="--generate-strategy" value="2"/>
+				<option key="--extrapolation" value="0"/>
+				<option key="--hashtable-size" value="27"/>
+				<option key="--filter" value="0"/>
+				<option key="--learning-method" value="-1"/>
+				<option key="--good-runs" value="5000"/>
+				<option key="--total-runs" value="5000"/>
+				<option key="--runs-pr-state" value="5000"/>
+				<option key="--eval-runs" value="100"/>
+				<option key="--max-iterations" value="30"/>
+				<option key="--max-imitation" value="5"/>
+				<option key="--reset-no-better" value="10"/>
+				<option key="--max-reset-learning" value="3"/>
+				<option key="--qlearning-alpha" value="2"/>
+				<option key="--split-upper-t" value="1.75"/>
+				<option key="--split-lower-t" value="0.15"/>
+				<option key="--split-ks" value="0.25"/>
+				<option key="--split-filter-rate" value="0.02"/>
+				<option key="--split-filter-val" value="0.99"/>
+				<option key="--discount" value="0.99"/>
+				<option key="--random-search-limit" value="0.5"/>
+				<option key="--deterministic-search-limit" value="0.5"/>
+				<option key="--indifference-scale" value="0.005"/>
+				<option key="--indifference-smoothing" value="10"/>
+				<option key="--lower-delta" value="0.01"/>
+				<option key="--upper-delta" value="0.01"/>
+				<option key="--alpha" value="0.05"/>
+				<option key="--beta" value="0.05"/>
+				<option key="--epsilon" value="0.05"/>
+				<option key="--u0" value="0.9"/>
+				<option key="--u1" value="1.1"/>
+				<option key="--histogram-bar-width" value="0.0"/>
+				<option key="--histogram-bar-count" value="0"/>
+				<option key="--resolution" value="4000"/>
+				<option key="--discretization" value="0.01"/>
+				<option key="--truncation-error" value="0.01"/>
+				<option key="--truncation-time-error" value="0.01"/>
+				<details>661.194 ± 9.82219 (95% CI)</details>
+				<plot title="Probability Density Distribution" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="probability density">
+					<series title="density" type="b(79.250000)" color="0x0000ff" encoding="csv">464.0,0.0017918093661389457
+543.25,0.0052870854572951145
+622.5,0.002056817790612581
+701.75,0.0011735310251547281
+781.0,9.842240632058016E-4
+860.25,5.678473784719647E-4
+939.5,4.1643635364266545E-4
+1018.75,2.1451030095116262E-4
+1098.0,8.832807586589713E-5
+1177.25,1.2618296817017621E-5
+1256.5,1.2618296817017621E-5
+1335.75,0.0
+1415.0,0.0
+1494.25,0.0
+1573.5,0.0
+1652.75,0.0
+1732.0,0.0
+1811.25,0.0
+1890.5,0.0
+1969.75,0.0
+2049.0,0.0
+2128.25,0.0
+2207.5,0.0
+2286.75,0.0
+2366.0,0.0
+2445.25,0.0
+2524.5,0.0
+2603.75,0.0
+2683.0,0.0
+2762.25,0.0
+2841.5,0.0
+2920.75,0.0
+3000.0,1.2618296817017621E-5
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">661.194,0.0
+661.194,0.0052870854572951145
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=79.25, bucket count=33
+Runs: 1000 in total, 1000 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [464, 3000]
+Mean estimate of displayed sample: 661.19 ± 9.8222 (95% CI)</comment>
+				</plot>
+				<plot title="Probability Distribution" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="probability">
+					<series title="probability" type="b(79.250000)" color="0x0000ff" encoding="csv">464.0,0.14200000000000002
+543.25,0.41900000000000004
+622.5,0.163
+701.75,0.093
+781.0,0.07800000000000001
+860.25,0.045
+939.5,0.033
+1018.75,0.017
+1098.0,0.007
+1177.25,0.001
+1256.5,0.001
+1335.75,0.0
+1415.0,0.0
+1494.25,0.0
+1573.5,0.0
+1652.75,0.0
+1732.0,0.0
+1811.25,0.0
+1890.5,0.0
+1969.75,0.0
+2049.0,0.0
+2128.25,0.0
+2207.5,0.0
+2286.75,0.0
+2366.0,0.0
+2445.25,0.0
+2524.5,0.0
+2603.75,0.0
+2683.0,0.0
+2762.25,0.0
+2841.5,0.0
+2920.75,0.0
+3000.0,0.001
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">661.194,0.0
+661.194,0.41900000000000004
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=79.25, bucket count=33
+Runs: 1000 in total, 1000 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [464, 3000]
+Mean estimate of displayed sample: 661.19 ± 9.8222 (95% CI)</comment>
+				</plot>
+				<plot title="Cumulative Probability Distribution" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="probability">
+					<series title="cumulative" type="l" color="0x000000" encoding="csv">464.0,0.0
+543.25,0.14200000000000002
+622.5,0.561
+701.75,0.724
+781.0,0.8170000000000001
+860.25,0.895
+939.5,0.9400000000000001
+1018.75,0.973
+1098.0,0.99
+1177.25,0.997
+1256.5,0.998
+1335.75,0.999
+1415.0,0.999
+1494.25,0.999
+1573.5,0.999
+1652.75,0.999
+1732.0,0.999
+1811.25,0.999
+1890.5,0.999
+1969.75,0.999
+2049.0,0.999
+2128.25,0.999
+2207.5,0.999
+2286.75,0.999
+2366.0,0.999
+2445.25,0.999
+2524.5,0.999
+2603.75,0.999
+2683.0,0.999
+2762.25,0.999
+2841.5,0.999
+2920.75,0.999
+3000.0,0.999
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">661.194,0.0
+661.194,1.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=79.25, bucket count=33
+Runs: 1000 in total, 1000 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [464, 3000]
+Mean estimate of displayed sample: 661.19 ± 9.8222 (95% CI)</comment>
+				</plot>
+				<plot title="Cumulative Probability Confidence Intervals" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="probability">
+					<series title="upper limit" type="k" color="0x0000dd" encoding="csv">464.0,0.00368212000363871
+543.25,0.16518707189711
+622.5,0.5920398821048064
+701.75,0.7515127106365949
+781.0,0.8405041599634294
+860.25,0.913315199336116
+939.5,0.9539049671761354
+1018.75,0.9821331176638011
+1098.0,0.9951945044006384
+1177.25,0.9993809143028738
+1256.5,0.9997577121636964
+1335.75,0.9999746815374284
+1415.0,0.9999746815374284
+1494.25,0.9999746815374284
+1573.5,0.9999746815374284
+1652.75,0.9999746815374284
+1732.0,0.9999746815374284
+1811.25,0.9999746815374284
+1890.5,0.9999746815374284
+1969.75,0.9999746815374284
+2049.0,0.9999746815374284
+2128.25,0.9999746815374284
+2207.5,0.9999746815374284
+2286.75,0.9999746815374284
+2366.0,0.9999746815374284
+2445.25,0.9999746815374284
+2524.5,0.9999746815374284
+2603.75,0.9999746815374284
+2683.0,0.9999746815374284
+2762.25,0.9999746815374284
+2841.5,0.9999746815374284
+2920.75,0.9999746815374284
+3000.0,0.9999746815374284
+					</series>
+					<series title="upper limit" type="k" color="0xdd0000" encoding="csv">464.0,0.0
+543.25,0.1209449054188942
+622.5,0.5296000269062465
+701.75,0.6951618517821191
+781.0,0.7916133976307398
+860.25,0.8743231759861205
+939.5,0.9234395301370196
+1018.75,0.9609582664648029
+1098.0,0.9816867906169731
+1177.25,0.9912579942516173
+1256.5,0.9927941735434533
+1335.75,0.9944411057303193
+1415.0,0.9944411057303193
+1494.25,0.9944411057303193
+1573.5,0.9944411057303193
+1652.75,0.9944411057303193
+1732.0,0.9944411057303193
+1811.25,0.9944411057303193
+1890.5,0.9944411057303193
+1969.75,0.9944411057303193
+2049.0,0.9944411057303193
+2128.25,0.9944411057303193
+2207.5,0.9944411057303193
+2286.75,0.9944411057303193
+2366.0,0.9944411057303193
+2445.25,0.9944411057303193
+2524.5,0.9944411057303193
+2603.75,0.9944411057303193
+2683.0,0.9944411057303193
+2762.25,0.9944411057303193
+2841.5,0.9944411057303193
+2920.75,0.9944411057303193
+3000.0,0.9944411057303193
+					</series>
+					<series title="cumulative" type="l" color="0x000000" encoding="csv">464.0,0.0
+543.25,0.14200000000000002
+622.5,0.561
+701.75,0.724
+781.0,0.8170000000000001
+860.25,0.895
+939.5,0.9400000000000001
+1018.75,0.973
+1098.0,0.99
+1177.25,0.997
+1256.5,0.998
+1335.75,0.999
+1415.0,0.999
+1494.25,0.999
+1573.5,0.999
+1652.75,0.999
+1732.0,0.999
+1811.25,0.999
+1890.5,0.999
+1969.75,0.999
+2049.0,0.999
+2128.25,0.999
+2207.5,0.999
+2286.75,0.999
+2366.0,0.999
+2445.25,0.999
+2524.5,0.999
+2603.75,0.999
+2683.0,0.999
+2762.25,0.999
+2841.5,0.999
+2920.75,0.999
+3000.0,0.999
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">661.194,0.0
+661.194,1.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=79.25, bucket count=33
+Runs: 1000 in total, 1000 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [464, 3000]
+Mean estimate of displayed sample: 661.19 ± 9.8222 (95% CI)</comment>
+				</plot>
+				<plot title="Frequency Histogram" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="count">
+					<series title="count" type="b(79.250000)" color="0x0000ff" encoding="csv">464.0,142.0
+543.25,419.0
+622.5,163.0
+701.75,93.0
+781.0,78.0
+860.25,45.0
+939.5,33.0
+1018.75,17.0
+1098.0,7.0
+1177.25,1.0
+1256.5,1.0
+1335.75,0.0
+1415.0,0.0
+1494.25,0.0
+1573.5,0.0
+1652.75,0.0
+1732.0,0.0
+1811.25,0.0
+1890.5,0.0
+1969.75,0.0
+2049.0,0.0
+2128.25,0.0
+2207.5,0.0
+2286.75,0.0
+2366.0,0.0
+2445.25,0.0
+2524.5,0.0
+2603.75,0.0
+2683.0,0.0
+2762.25,0.0
+2841.5,0.0
+2920.75,0.0
+3000.0,1.0
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">661.194,0.0
+661.194,419.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=79.25, bucket count=33
+Runs: 1000 in total, 1000 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [464, 3000]
+Mean estimate of displayed sample: 661.19 ± 9.8222 (95% CI)</comment>
+				</plot>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=MAXTIME] (&lt;&gt; forall(i:int[0,AgentNum-1]) iteration[i] &gt;= MaxIteration ) under opt</formula>
+			<comment/>
+			<result outcome="success" type="interval" value="[0.950056,1] (95% CI)" timestamp="2021-06-23 04:30:23 +0200">
+				<option key="--search-order" value="0"/>
+				<option key="--statespace-consumption" value="1"/>
+				<option key="--diagnostic" value="2"/>
+				<option key="--backwards-order" value="1"/>
+				<option key="--priority-order" value="0"/>
+				<option key="--generate-strategy" value="2"/>
+				<option key="--extrapolation" value="0"/>
+				<option key="--hashtable-size" value="27"/>
+				<option key="--filter" value="0"/>
+				<option key="--learning-method" value="-1"/>
+				<option key="--good-runs" value="5000"/>
+				<option key="--total-runs" value="5000"/>
+				<option key="--runs-pr-state" value="5000"/>
+				<option key="--eval-runs" value="100"/>
+				<option key="--max-iterations" value="30"/>
+				<option key="--max-imitation" value="5"/>
+				<option key="--reset-no-better" value="10"/>
+				<option key="--max-reset-learning" value="3"/>
+				<option key="--qlearning-alpha" value="2"/>
+				<option key="--split-upper-t" value="1.75"/>
+				<option key="--split-lower-t" value="0.15"/>
+				<option key="--split-ks" value="0.25"/>
+				<option key="--split-filter-rate" value="0.02"/>
+				<option key="--split-filter-val" value="0.99"/>
+				<option key="--discount" value="0.99"/>
+				<option key="--random-search-limit" value="0.5"/>
+				<option key="--deterministic-search-limit" value="0.5"/>
+				<option key="--indifference-scale" value="0.005"/>
+				<option key="--indifference-smoothing" value="10"/>
+				<option key="--lower-delta" value="0.01"/>
+				<option key="--upper-delta" value="0.01"/>
+				<option key="--alpha" value="0.05"/>
+				<option key="--beta" value="0.05"/>
+				<option key="--epsilon" value="0.05"/>
+				<option key="--u0" value="0.9"/>
+				<option key="--u1" value="1.1"/>
+				<option key="--histogram-bar-width" value="0.0"/>
+				<option key="--histogram-bar-count" value="0"/>
+				<option key="--resolution" value="4000"/>
+				<option key="--discretization" value="0.01"/>
+				<option key="--truncation-error" value="0.01"/>
+				<option key="--truncation-time-error" value="0.01"/>
+				<details>[0.950056,1] (95% CI)</details>
+				<plot title="Probability Density Distribution" xaxis="run duration in time" yaxis="probability density">
+					<series title="density" type="b(63.555556)" color="0x0000ff" encoding="csv">507.0,0.003933592807702491
+570.5555555544098,0.005026241098608677
+634.1111111111569,0.0021853301797056675
+697.6666666655667,0.0010926818887994818
+761.2222222223138,6.556218015924796E-4
+824.7777777767237,8.741416962926088E-4
+888.3333333334708,8.741416962926088E-4
+951.8888888878806,4.370836270880396E-4
+1015.4444444501269,4.370836270880396E-4
+1079.0,2.1854167390314254E-4
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,0.005026241098608677
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Probability Density Confidence Intervals" xaxis="run duration in time" yaxis="probability density">
+					<series title="upper limit" type="b(63.555556)" color="0xa0a0ff" encoding="csv">507.0,0.36602807173803553
+570.5555555544098,0.4398584422300784
+634.1111111111569,0.24062593604266314
+697.6666666655667,0.15466731828155217
+761.2222222223138,0.11697484009871019
+824.7777777767237,0.13617866065982726
+888.3333333334708,0.13617866065982726
+951.8888888878806,0.09676729086365571
+1015.4444444501269,0.09676729086365571
+1079.0,0.0749713207702214
+					</series>
+					<series title="lower limit" type="b(63.555556)" color="0x0000ff" encoding="csv">507.0,0.1553926820748247
+570.5555555544098,0.21441793689328575
+634.1111111111569,0.06866421938473076
+697.6666666655667,0.02293167888525082
+761.2222222223138,0.008676514046665602
+824.7777777767237,0.015342551968844383
+888.3333333334708,0.015342551968844383
+951.8888888878806,0.003381923260366697
+1015.4444444501269,0.003381923260366697
+1079.0,3.5158339458391403E-4
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,0.006920883801853001
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Probability Distribution" xaxis="run duration in time" yaxis="probability">
+					<series title="probability" type="b(63.555556)" color="0x0000ff" encoding="csv">507.0,0.25
+570.5555555544098,0.3194444595226789
+634.1111111111569,0.13888891839197445
+697.6666666655667,0.06944446165610393
+761.2222222223138,0.04166669301751216
+824.7777777767237,0.05555557760348617
+888.3333333334708,0.05555557760348617
+951.8888888878806,0.027777808431538143
+1015.4444444501269,0.027777808431538143
+1079.0,0.013888923845564123
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,0.3194444595226789
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Probability Confidence Intervals" xaxis="run duration in time" yaxis="probability">
+					<series title="upper limit" type="b(63.555556)" color="0xa0a0ff" encoding="csv">507.0,0.36602807173803553
+570.5555555544098,0.4398584422300784
+634.1111111111569,0.24062593604266314
+697.6666666655667,0.15466731828155217
+761.2222222223138,0.11697484009871019
+824.7777777767237,0.13617866065982726
+888.3333333334708,0.13617866065982726
+951.8888888878806,0.09676729086365571
+1015.4444444501269,0.09676729086365571
+1079.0,0.0749713207702214
+					</series>
+					<series title="lower limit" type="b(63.555556)" color="0x0000ff" encoding="csv">507.0,0.1553926820748247
+570.5555555544098,0.21441793689328575
+634.1111111111569,0.06866421938473076
+697.6666666655667,0.02293167888525082
+761.2222222223138,0.008676514046665602
+824.7777777767237,0.015342551968844383
+888.3333333334708,0.015342551968844383
+951.8888888878806,0.003381923260366697
+1015.4444444501269,0.003381923260366697
+1079.0,3.5158339458391403E-4
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,0.4398584422300784
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Cumulative Probability Distribution" xaxis="run duration in time" yaxis="probability">
+					<series title="cumulative" type="l" color="0x000000" encoding="csv">507.0,0.0
+570.5555555544098,0.25
+634.1111111111569,0.5694444595226789
+697.6666666655667,0.7083333446420091
+761.2222222223138,0.7777778035113048
+824.7777777767237,0.8194444595226789
+888.3333333334708,0.8750000000000001
+951.8888888878806,0.9305555737499652
+1015.4444444501269,0.9583333446420093
+1079.0,0.9861111148806697
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,1.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Cumulative Probability Confidence Intervals" xaxis="run duration in time" yaxis="probability">
+					<series title="upper limit" type="k" color="0x0000dd" encoding="csv">507.0,0.049944106375321096
+570.5555555544098,0.36602807173803553
+634.1111111111569,0.6856593767888116
+697.6666666655667,0.8095467134338487
+761.2222222223138,0.8673176274572998
+824.7777777767237,0.9002064884863258
+888.3333333334708,0.9412167050569444
+951.8888888878806,0.9770683577075577
+1015.4444444501269,0.9913235274361554
+1079.0,0.9996484535518346
+					</series>
+					<series title="upper limit" type="k" color="0xdd0000" encoding="csv">507.0,0.0
+570.5555555544098,0.1553926820748247
+634.1111111111569,0.4473357965570872
+697.6666666655667,0.589332873962409
+761.2222222223138,0.6643633668310623
+824.7777777767237,0.7110566163396993
+888.3333333334708,0.7759280764964979
+951.8888888878806,0.8453327149910919
+1015.4444444501269,0.8830251931739338
+1079.0,0.925028713035779
+					</series>
+					<series title="cumulative" type="l" color="0x000000" encoding="csv">507.0,0.0
+570.5555555544098,0.25
+634.1111111111569,0.5694444595226789
+697.6666666655667,0.7083333446420091
+761.2222222223138,0.7777778035113048
+824.7777777767237,0.8194444595226789
+888.3333333334708,0.8750000000000001
+951.8888888878806,0.9305555737499652
+1015.4444444501269,0.9583333446420093
+1079.0,0.9861111148806697
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,1.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+				<plot title="Frequency Histogram" xaxis="run duration in time" yaxis="count">
+					<series title="count" type="b(63.555556)" color="0x0000ff" encoding="csv">507.0,18.0
+570.5555555544098,23.0
+634.1111111111569,10.0
+697.6666666655667,5.0
+761.2222222223138,3.0
+824.7777777767237,4.0
+888.3333333334708,4.0
+951.8888888878806,2.0
+1015.4444444501269,2.0
+1079.0,1.0
+					</series>
+					<series title="average" type="pl" color="0x00dd00" encoding="csv">671.1111111111569,0.0
+671.1111111111569,23.0
+					</series>
+					<comment>Parameters: α=0.05, ε=0.05, bucket width=63.556, bucket count=10
+Runs: 72 in total, 72 (100%) displayed, 0 (0%) remaining
+Span of displayed sample: [507, 1079]
+Mean estimate of displayed sample: 671.1 ± 34.58 (95% CI)</comment>
+				</plot>
+			</result>
+		</query>
+		<query>
+			<formula/>
+			<comment>E[&lt;=MAXTIME;5000] (max: globalTime*((exists(i:int[0,AgentNum-1]) iteration[i] &lt; MaxIteration)))</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment>Pr[&lt;=MAXTIME] (&lt;&gt; forall(i:int[0,AgentNum-1]) iteration[i] &gt;= MaxIteration )</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment>//</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment>saveStrategy("/home/ron/eclipse-workspace/OutParser/out/complete_path.out", opt)</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment>E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</comment>
+			<option key="--diagnostic" value="0"/>
+		</query>
+		<query>
+			<formula>A&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</formula>
+			<comment>Task Coverage</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment>saveStrategy("/home/ron/eclipse-workspace/OutParser/out/concise_path.out", opt)</comment>
+		</query>
+	</queries>
+</nta>
