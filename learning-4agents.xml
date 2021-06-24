@@ -7,7 +7,7 @@ typedef int[0,AgentNum-1] AgentScale;
 const int TaskNum = 4;
 const int EventNum = 0;
 const int MilestoneNum = 4;
-const int MaxIteration = 2;
+const int MaxIteration = 1;
 const int RegularTaskNum[AgentNum] = {3,3,3,3};
 const int MAXTIME = 1000;
 //const int REWARDRATE = 2000;
