@@ -1116,11 +1116,8 @@ Mean estimate of displayed sample: 123.93 ± 0.55595 (99.99% CI)</comment>
 			<comment>//</comment>
 		</query>
 		<query>
-			<formula>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</formula>
+			<formula/>
 			<comment>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</comment>
-			<result outcome="success" type="quality" timestamp="2021-06-25 03:19:25 +0200">
-				
-			</result>
 		</query>
 		<query>
 			<formula/>
@@ -1135,11 +1132,8 @@ Mean estimate of displayed sample: 123.93 ± 0.55595 (99.99% CI)</comment>
 			</result>
 		</query>
 		<query>
-			<formula>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/concise_path.out", opt)</formula>
-			<comment/>
-			<result outcome="success" type="quality" timestamp="2021-06-25 03:19:25 +0200">
-				
-			</result>
+			<formula/>
+			<comment>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/concise_path.out", opt)</comment>
 		</query>
 	</queries>
 </nta>
