@@ -911,7 +911,7 @@ Mean estimate of displayed sample: 949.1 ± 56.39 (99.99% CI)</comment>
 			<option key="--diagnostic" value="0"/>
 		</query>
 		<query>
-			<formula/>
+			<formula>A&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</formula>
 			<comment>Task Coverage
 A&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</comment>
 		</query>
