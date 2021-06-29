@@ -2,7 +2,7 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.5//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_5.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-const int AgentNum = 8;
+const int AgentNum = 7;
 typedef int[0,AgentNum-1] AgentScale;
 const int TaskNum = 4;
 const int EventNum = 0;
@@ -11,21 +11,21 @@ const int MaxIteration = 1;
 //const int REWARDRATE = 2000;
 
 //NEED TO CHANGE WHEN AGENTS INCREASE
-const int RegularTaskNum[AgentNum] = {3,3,3,3,3,3,3,3};
+const int RegularTaskNum[AgentNum] = {3,3,3,3,3,3,3};
 const int MAXTIME = 1500;
 
-int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0,0,0,0,0};
+int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0,0,0,0};
 
 bool tf[AgentNum][TaskNum]={{true,false,false,false},{true,false,false,false},
 {true,false,false,false},{true,false,false,false},{true,false,false,false},
-{true,false,false,false},{true,false,false,false},{true,false,false,false}};
+{true,false,false,false},{true,false,false,false}};
 
 bool ts[AgentNum][TaskNum]={{true,false,false,false},{true,false,false,false},
 {true,false,false,false},{true,false,false,false},{true,false,false,false},
-{true,false,false,false},{true,false,false,false},{true,false,false,false}};
+{true,false,false,false},{true,false,false,false}};
 
-int iteration[AgentNum] = {0,0,0,0,0,0,0,0};
-bool idle[AgentNum] = {true,true,true,true,true,true,true,true};
+int iteration[AgentNum] = {0,0,0,0,0,0,0};
+bool idle[AgentNum] = {true,true,true,true,true,true,true};
 //END
 
 clock globalTime;
@@ -448,9 +448,6 @@ taskExe5 = TaskExecution0(5);
 movement6 = Movement0(6);
 taskExe6 = TaskExecution0(6);
 
-movement7 = Movement0(7);
-taskExe7 = TaskExecution0(7);
-
 system movement0, taskExe0, 
 
 movement1, taskExe1, 
@@ -463,9 +460,7 @@ movement4, taskExe4,
 
 movement5, taskExe5,
 
-movement6, taskExe6,
-
-movement7, taskExe7;</system>
+movement6, taskExe6;</system>
 	<queries>
 		<option key="--diagnostic" value="2"/>
 		<option key="--learning-method" value="-1"/>
@@ -480,13 +475,13 @@ movement7, taskExe7;</system>
 movement0.location, taskExe0.location, movement1.location, taskExe1.location, 
 movement2.location, taskExe2.location, movement3.location, taskExe3.location,
 movement4.location, taskExe4.location, movement5.location, taskExe5.location,
-movement6.location, taskExe6.location, movement7.location, taskExe7.location,
+movement6.location, taskExe6.location,
 iteration[0], iteration[1], iteration[2], iteration[3], iteration[4], iteration[5],
-iteration[6], iteration[7],
+iteration[6],
 tf[0][0], tf[0][1], tf[0][2], tf[0][3], tf[1][0], tf[1][1], tf[1][2], tf[1][3],
 tf[2][0], tf[2][1], tf[2][2], tf[2][3], tf[3][0], tf[3][1], tf[3][2], tf[3][3], 
 tf[4][0], tf[4][1], tf[4][2], tf[4][3], tf[5][0], tf[5][1], tf[5][2], tf[5][3], 
-tf[6][0], tf[6][1], tf[6][2], tf[6][3], tf[7][0], tf[7][1], tf[7][2], tf[7][3]}-&gt;{}:&lt;&gt; (((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) || globalTime &gt;= MAXTIME)</formula>
+tf[6][0], tf[6][1], tf[6][2], tf[6][3]}-&gt;{}:&lt;&gt; (((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) || globalTime &gt;= MAXTIME)</formula>
 			<comment>minE(globalTime-(tasks_finished()*REWARDRATE))
 minE(globalTime-tasks_finished())
 maxE(tasks_finished() - globalTime)</comment>
@@ -494,9 +489,6 @@ maxE(tasks_finished() - globalTime)</comment>
 			<option key="--good-runs" value="1000"/>
 			<option key="--total-runs" value="1000"/>
 			<option key="--runs-pr-state" value="1000"/>
-			<result outcome="success" type="quality" timestamp="2021-06-28 04:18:28 +0200">
-				
-			</result>
 		</query>
 		<query>
 			<formula>E[&lt;=MAXTIME;2000] (max: globalTime*((exists(i:int[0,AgentNum-1]) iteration[i] &lt; MaxIteration))) under opt</formula>
@@ -906,14 +898,14 @@ Mean estimate of displayed sample: 949.1 ± 56.39 (99.99% CI)</comment>
 			<comment>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</comment>
 		</query>
 		<query>
-			<formula>E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</formula>
+			<formula/>
 			<comment>E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</comment>
 			<option key="--diagnostic" value="0"/>
 		</query>
 		<query>
-			<formula/>
+			<formula>A&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</formula>
 			<comment>Task Coverage
-A&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</comment>
+</comment>
 		</query>
 		<query>
 			<formula/>
