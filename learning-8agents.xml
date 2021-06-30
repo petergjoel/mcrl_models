@@ -8,7 +8,7 @@ const int TaskNum = 4;
 const int EventNum = 0;
 const int MilestoneNum = 4;
 const int MaxIteration = 1;
-//const int REWARDRATE = 2000;
+const int REWARDRATE = 100;
 
 //NEED TO CHANGE WHEN AGENTS INCREASE
 const int RegularTaskNum[AgentNum] = {3,3,3,3,3,3,3,3};
@@ -476,7 +476,7 @@ movement7, taskExe7;</system>
 		<option key="--beta" value="1.0E-4"/>
 		<option key="--epsilon" value="0.001"/>
 		<query>
-			<formula>strategy opt = maxE(tasks_finished() - globalTime)[&lt;=MAXTIME]{
+			<formula>strategy opt = maxE((tasks_finished() * REWARDRATE) - globalTime)[&lt;=MAXTIME]{
 movement0.location, taskExe0.location, movement1.location, taskExe1.location, 
 movement2.location, taskExe2.location, movement3.location, taskExe3.location,
 movement4.location, taskExe4.location, movement5.location, taskExe5.location,
@@ -494,7 +494,7 @@ maxE(tasks_finished() - globalTime)</comment>
 			<option key="--good-runs" value="1000"/>
 			<option key="--total-runs" value="1000"/>
 			<option key="--runs-pr-state" value="1000"/>
-			<result outcome="success" type="quality" timestamp="2021-06-28 04:18:28 +0200">
+			<result outcome="success" type="quality" timestamp="2021-06-30 05:51:30 +0200">
 				
 			</result>
 		</query>
@@ -906,7 +906,7 @@ Mean estimate of displayed sample: 949.1 ± 56.39 (99.99% CI)</comment>
 			<comment>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</comment>
 		</query>
 		<query>
-			<formula>E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</formula>
+			<formula/>
 			<comment>E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under opt</comment>
 			<option key="--diagnostic" value="0"/>
 		</query>
