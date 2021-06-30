@@ -563,48 +563,6 @@ E&lt;&gt; ((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) under op
 
 saveStrategy("/home/ron/uppaal/projects/q_learning/output/complete_path.out", opt)</comment>
 			<result outcome="success" type="quantity" value="312.289 ± 12.2103 (99.99% CI)" timestamp="2021-06-30 04:05:30 +0200">
-				<option key="--search-order" value="0"/>
-				<option key="--statespace-consumption" value="1"/>
-				<option key="--diagnostic" value="2"/>
-				<option key="--backwards-order" value="1"/>
-				<option key="--priority-order" value="0"/>
-				<option key="--generate-strategy" value="2"/>
-				<option key="--extrapolation" value="0"/>
-				<option key="--hashtable-size" value="27"/>
-				<option key="--filter" value="0"/>
-				<option key="--learning-method" value="4"/>
-				<option key="--good-runs" value="500"/>
-				<option key="--total-runs" value="500"/>
-				<option key="--runs-pr-state" value="500"/>
-				<option key="--eval-runs" value="100"/>
-				<option key="--max-iterations" value="30"/>
-				<option key="--max-imitation" value="5"/>
-				<option key="--reset-no-better" value="10"/>
-				<option key="--max-reset-learning" value="3"/>
-				<option key="--qlearning-alpha" value="2"/>
-				<option key="--split-upper-t" value="1.75"/>
-				<option key="--split-lower-t" value="0.15"/>
-				<option key="--split-ks" value="0.25"/>
-				<option key="--split-filter-rate" value="0.02"/>
-				<option key="--split-filter-val" value="0.99"/>
-				<option key="--discount" value="0.99"/>
-				<option key="--random-search-limit" value="0.5"/>
-				<option key="--deterministic-search-limit" value="0.5"/>
-				<option key="--indifference-scale" value="0.005"/>
-				<option key="--indifference-smoothing" value="10"/>
-				<option key="--lower-delta" value="0.01"/>
-				<option key="--upper-delta" value="0.01"/>
-				<option key="--alpha" value="1.0E-4"/>
-				<option key="--beta" value="1.0E-4"/>
-				<option key="--epsilon" value="0.001"/>
-				<option key="--u0" value="0.9"/>
-				<option key="--u1" value="1.1"/>
-				<option key="--histogram-bar-width" value="0.0"/>
-				<option key="--histogram-bar-count" value="0"/>
-				<option key="--resolution" value="4000"/>
-				<option key="--discretization" value="0.01"/>
-				<option key="--truncation-error" value="0.01"/>
-				<option key="--truncation-time-error" value="0.01"/>
 				<details>312.289 ± 12.2103 (99.99% CI)</details>
 				<plot title="Probability Density Distribution" xaxis="max: globalTime * (exists (i:(const (range (int) &quot;0&quot; &quot;AgentNum - 1&quot;))) iteration[i] &lt; MaxIteration)" yaxis="probability density">
 					<series title="density" type="b(7.511111)" color="0x0000ff" encoding="csv">162.0,0.011250021763904546
@@ -992,53 +950,8 @@ Mean estimate of displayed sample: 312.3 ± 12.21 (99.99% CI)</comment>
 			<comment>//</comment>
 		</query>
 		<query>
-			<formula>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</formula>
+			<formula/>
 			<comment>saveStrategy("/home/ron/uppaal/projects/mcrl_strategy_parser/OutParser/out/complete_path.out", opt)</comment>
-			<result outcome="success" type="quality" timestamp="2021-06-30 05:21:30 +0200">
-				<option key="--search-order" value="0"/>
-				<option key="--statespace-consumption" value="1"/>
-				<option key="--diagnostic" value="2"/>
-				<option key="--backwards-order" value="1"/>
-				<option key="--priority-order" value="0"/>
-				<option key="--generate-strategy" value="2"/>
-				<option key="--extrapolation" value="0"/>
-				<option key="--hashtable-size" value="27"/>
-				<option key="--filter" value="0"/>
-				<option key="--learning-method" value="4"/>
-				<option key="--good-runs" value="500"/>
-				<option key="--total-runs" value="500"/>
-				<option key="--runs-pr-state" value="500"/>
-				<option key="--eval-runs" value="100"/>
-				<option key="--max-iterations" value="30"/>
-				<option key="--max-imitation" value="5"/>
-				<option key="--reset-no-better" value="10"/>
-				<option key="--max-reset-learning" value="3"/>
-				<option key="--qlearning-alpha" value="2"/>
-				<option key="--split-upper-t" value="1.75"/>
-				<option key="--split-lower-t" value="0.15"/>
-				<option key="--split-ks" value="0.25"/>
-				<option key="--split-filter-rate" value="0.02"/>
-				<option key="--split-filter-val" value="0.99"/>
-				<option key="--discount" value="0.99"/>
-				<option key="--random-search-limit" value="0.5"/>
-				<option key="--deterministic-search-limit" value="0.5"/>
-				<option key="--indifference-scale" value="0.005"/>
-				<option key="--indifference-smoothing" value="10"/>
-				<option key="--lower-delta" value="0.01"/>
-				<option key="--upper-delta" value="0.01"/>
-				<option key="--alpha" value="1.0E-4"/>
-				<option key="--beta" value="1.0E-4"/>
-				<option key="--epsilon" value="0.001"/>
-				<option key="--u0" value="0.9"/>
-				<option key="--u1" value="1.1"/>
-				<option key="--histogram-bar-width" value="0.0"/>
-				<option key="--histogram-bar-count" value="0"/>
-				<option key="--resolution" value="4000"/>
-				<option key="--discretization" value="0.01"/>
-				<option key="--truncation-error" value="0.01"/>
-				<option key="--truncation-time-error" value="0.01"/>
-				
-			</result>
 		</query>
 		<query>
 			<formula/>
