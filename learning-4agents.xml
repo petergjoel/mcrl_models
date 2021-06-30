@@ -10,7 +10,7 @@ const int MilestoneNum = 4;
 const int MaxIteration = 1;
 const int RegularTaskNum[AgentNum] = {3,3,3,3};
 const int MAXTIME = 800;
-//const int REWARDRATE = 2000;
+const int REWARDRATE = 100;
 
 int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0};
 bool tf[AgentNum][TaskNum]={{true,false,false,false},{true,false,false,false},{true,false,false,false},{true,false,false,false}};
@@ -447,7 +447,7 @@ movement3, taskExe3;</system>
 		<option key="--alpha" value="1.0E-4"/>
 		<option key="--beta" value="1.0E-4"/>
 		<query>
-			<formula>strategy opt = maxE(tasks_finished() - globalTime)[&lt;=MAXTIME]{
+			<formula>strategy opt = maxE((tasks_finished()*REWARDRATE) - globalTime)[&lt;=MAXTIME]{
 movement0.location, taskExe0.location, movement1.location, taskExe1.location, 
 movement2.location, taskExe2.location, movement3.location, taskExe3.location,
 iteration[0], iteration[1], iteration[2], iteration[3],
