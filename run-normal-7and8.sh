@@ -1,0 +1,6 @@
+#7 agents
+UPPAAL_EXTERNAL_LEARNER_LIBRARY=~/Rong/mcrl_models/libexternal_learning.so ../stratego/verifyta -u ~/Rong/mcrl_models/learning-7agents.xml -D 0.01 --learning-method -1 -s --max-iterations 30 --eval-runs 100 --good-runs 5000 --total-runs 5000 --reset-no-better 10 --max-reset-learning 3 >> result7
+UPPAAL_EXTERNAL_LEARNER_LIBRARY=~/Rong/mcrl_models/libexternal_learning.so ../stratego/verifyta -u ~/Rong/mcrl_models/learning-7agents.xml -D 0.01 --learning-method -1 -s --max-iterations 30 --eval-runs 100 --good-runs 50000 --total-runs 50000 --reset-no-better 10 --max-reset-learning 3 >> result7
+#8 agents
+UPPAAL_EXTERNAL_LEARNER_LIBRARY=~/Rong/mcrl_models/libexternal_learning.so ../stratego/verifyta -u ~/Rong/mcrl_models/learning-8agents.xml -D 0.01 --learning-method -1 -s --max-iterations 30 --eval-runs 100 --good-runs 5000 --total-runs 5000 --reset-no-better 10 --max-reset-learning 3 >> result8
+UPPAAL_EXTERNAL_LEARNER_LIBRARY=~/Rong/mcrl_models/libexternal_learning.so ../stratego/verifyta -u ~/Rong/mcrl_models/learning-8agents.xml -D 0.01 --learning-method -1 -s --max-iterations 30 --eval-runs 100 --good-runs 100000 --total-runs 100000 --reset-no-better 10 --max-reset-learning 3 >> result8
