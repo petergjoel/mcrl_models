@@ -9,7 +9,7 @@ const int EventNum = 0;
 const int MilestoneNum = 4;
 const int MaxIteration = 1;
 const int RegularTaskNum[AgentNum] = {3,3,3,3,3};
-const int MAXTIME = 1000;
+const int MAXTIME = 500;
 const int REWARDRATE = 100;
 
 int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0,0};
@@ -454,7 +454,7 @@ movement4, taskExe4;</system>
 		<option key="--alpha" value="1.0E-4"/>
 		<option key="--beta" value="1.0E-4"/>
 		<query>
-			<formula>strategy opt = maxE((tasks_finished()*REWARDRATE) - globalTime)[&lt;=MAXTIME]{
+			<formula>strategy opt = minE(globalTime-(tasks_finished()*REWARDRATE))[&lt;=MAXTIME]{
 movement0.location, taskExe0.location, movement1.location, taskExe1.location, 
 movement2.location, taskExe2.location, movement3.location, taskExe3.location,
 movement4.location, taskExe4.location,
@@ -463,8 +463,7 @@ tf[0][0], tf[0][1], tf[0][2], tf[0][3], tf[1][0], tf[1][1], tf[1][2], tf[1][3],
 tf[2][0], tf[2][1], tf[2][2], tf[2][3], tf[3][0], tf[3][1], tf[3][2], tf[3][3], 
 tf[4][0], tf[4][1], tf[4][2], tf[4][3]}-&gt;{}:&lt;&gt; (((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) || globalTime &gt;= MAXTIME)</formula>
 			<comment>minE(globalTime-(tasks_finished()*REWARDRATE))
-minE(globalTime-tasks_finished())
-maxE(tasks_finished() - globalTime)</comment>
+maxE((tasks_finished()*REWARDRATE) - globalTime)</comment>
 			<option key="--learning-method" value="-1"/>
 			<option key="--good-runs" value="1000"/>
 			<option key="--total-runs" value="1000"/>
@@ -856,6 +855,10 @@ Span of displayed sample: [123, 128]
 Mean estimate of displayed sample: 124.03 ± 0.176319 (99.99% CI)</comment>
 				</plot>
 			</result>
+		</query>
+		<query>
+			<formula>E[&lt;=MAXTIME;2000] (max: tasks_finished()) under opt</formula>
+			<comment/>
 		</query>
 		<query>
 			<formula>Pr[&lt;=MAXTIME] (&lt;&gt; forall(i:int[0,AgentNum-1]) iteration[i] &gt;= MaxIteration ) under opt</formula>

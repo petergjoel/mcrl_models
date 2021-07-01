@@ -12,7 +12,7 @@ const int REWARDRATE = 100;
 
 //NEED TO CHANGE WHEN AGENTS INCREASE
 const int RegularTaskNum[AgentNum] = {3,3,3,3,3,3,3,3};
-const int MAXTIME = 1500;
+const int MAXTIME = 500;
 
 int[-1,MilestoneNum] position[AgentNum] = {0,0,0,0,0,0,0,0};
 
@@ -476,7 +476,7 @@ movement7, taskExe7;</system>
 		<option key="--beta" value="1.0E-4"/>
 		<option key="--epsilon" value="0.001"/>
 		<query>
-			<formula>strategy opt = maxE((tasks_finished() * REWARDRATE) - globalTime)[&lt;=MAXTIME]{
+			<formula>strategy opt = minE(globalTime-(tasks_finished()*REWARDRATE))[&lt;=MAXTIME]{
 movement0.location, taskExe0.location, movement1.location, taskExe1.location, 
 movement2.location, taskExe2.location, movement3.location, taskExe3.location,
 movement4.location, taskExe4.location, movement5.location, taskExe5.location,
@@ -488,15 +488,11 @@ tf[2][0], tf[2][1], tf[2][2], tf[2][3], tf[3][0], tf[3][1], tf[3][2], tf[3][3],
 tf[4][0], tf[4][1], tf[4][2], tf[4][3], tf[5][0], tf[5][1], tf[5][2], tf[5][3], 
 tf[6][0], tf[6][1], tf[6][2], tf[6][3], tf[7][0], tf[7][1], tf[7][2], tf[7][3]}-&gt;{}:&lt;&gt; (((forall(i:int[0,AgentNum-1]) iteration[i]&gt;=MaxIteration)) || globalTime &gt;= MAXTIME)</formula>
 			<comment>minE(globalTime-(tasks_finished()*REWARDRATE))
-minE(globalTime-tasks_finished())
-maxE(tasks_finished() - globalTime)</comment>
+maxE((tasks_finished()*REWARDRATE) - globalTime)</comment>
 			<option key="--learning-method" value="-1"/>
 			<option key="--good-runs" value="1000"/>
 			<option key="--total-runs" value="1000"/>
 			<option key="--runs-pr-state" value="1000"/>
-			<result outcome="success" type="quality" timestamp="2021-06-30 05:51:30 +0200">
-				
-			</result>
 		</query>
 		<query>
 			<formula>E[&lt;=MAXTIME;2000] (max: globalTime*((exists(i:int[0,AgentNum-1]) iteration[i] &lt; MaxIteration))) under opt</formula>
@@ -884,6 +880,10 @@ Span of displayed sample: [190, 1500]
 Mean estimate of displayed sample: 949.1 ± 56.39 (99.99% CI)</comment>
 				</plot>
 			</result>
+		</query>
+		<query>
+			<formula>E[&lt;=MAXTIME;2000] (max: tasks_finished()) under opt</formula>
+			<comment/>
 		</query>
 		<query>
 			<formula>Pr[&lt;=MAXTIME] (&lt;&gt; forall(i:int[0,AgentNum-1]) iteration[i] &gt;= MaxIteration ) under opt</formula>
